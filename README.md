@@ -1,19 +1,22 @@
 # Mobile Media Organizer
 
-A Python toolkit for organizing mobile media files (iOS & Android) when transferred to your computer. Includes both **CLI scripts** for quick operations and a **FastAPI-based REST API** for integration with other tools.
+A Python toolkit for organizing mobile media files (iOS & Android) with a **modern web dashboard** for real-time progress tracking and control.
 
-## Features
+## ✨ Features
 
-- 📱 **Universal Mobile Support** - Works with iOS (HEIC, MOV) and Android (JPG, MP4, etc.)
-- 📅 **Date-Based Organization** - Automatically sorts media into `YYYY-MM` folders
+- 📱 **Universal Mobile Support** - iOS (HEIC, MOV) and Android (JPG, MP4, etc.)
+- 📅 **Date-Based Organization** - Auto-sorts media into `YYYY-MM` folders
 - 📸 **Screenshot Detection** - Separates screenshots into dedicated folder
-- 🔒 **Safe Operations** - Dry-run mode to preview changes before executing
-- 🌐 **REST API** - FastAPI server for programmatic control
+- 🌐 **Web Dashboard** - Premium UI with real-time progress tracking
+- ⛔ **Abort Control** - Stop operations mid-execution
+- 🔒 **Dry Run Mode** - Preview changes before executing
+- 📊 **Job History** - Track all operations with detailed stats
 
-## Installation
+## 🚀 Quick Start
+
+### 1. Install Dependencies
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/Mobile-Media.git
 cd Mobile-Media
 
@@ -22,78 +25,111 @@ python -m venv venv
 venv\Scripts\activate  # Windows
 # source venv/bin/activate  # macOS/Linux
 
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-## Quick Start
-
-### CLI Script
-
-Organize mobile media files directly:
-
-```bash
-python organize_mobile_media.py "D:\Phone Backup" "D:\Organized Photos"
-```
-
-**What it does:**
-- Moves photos/videos (`.jpg`, `.heic`, `.mp4`, `.dng`, etc.) → `YYYY-MM/` folders
-- Moves screenshots (`.png`) → `Screenshots/` folder
-- Handles filename collisions automatically
-
-### REST API
-
-Start the API server:
+### 2. Start the Dashboard
 
 ```bash
 cd api
-uvicorn main:app --reload
+uvicorn main:app --reload --port 8000
 ```
 
-Then visit `http://localhost:8000/docs` for the interactive Swagger UI.
+### 3. Open the Dashboard
 
-## API Endpoints
+Navigate to **http://localhost:8000** in your browser.
 
+![Dashboard Preview](docs/dashboard-preview.png)
+
+## 🎛️ Dashboard Operations
+
+| Operation | Description |
+|-----------|-------------|
+| **Organize Media** | Sort photos/videos into YYYY-MM folders, separate screenshots |
+| **Expand to Days** | Organize YYYY-MM folders into daily subfolders |
+| **Clean Android** | Remove WhatsApp backups, cache, and junk files |
+| **Organize by Type** | Sort installers and archives into categories |
+| **Collect PDFs** | Find all PDFs and consolidate to one location |
+| **Analyze** | Get file extension statistics (read-only) |
+
+## 🔌 API Endpoints
+
+All operations return a `job_id` for real-time tracking via SSE.
+
+### Job Management
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/jobs` | GET | List all jobs |
+| `/jobs/{id}` | GET | Get job status |
+| `/jobs/{id}/abort` | POST | Abort a running job |
+| `/jobs/{id}/stream` | GET | SSE stream for progress |
+
+### Operations
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/media/organize` | POST | Organize media by date |
-| `/media/expand-dates` | POST | Expand YYYY-MM folders into daily subfolders |
-| `/android/clean` | POST | Clean Android backup cache |
-| `/files/organize-by-type` | POST | Organize files by extension |
-| `/analyze/extensions` | POST | Analyze file extensions in a directory |
+| `/media/subfolders` | POST | Expand to daily subfolders |
+| `/android/clean` | POST | Clean Android backup |
+| `/files/organize-types` | POST | Organize by file type |
+| `/files/consolidate-pdfs` | POST | Collect all PDFs |
+| `/files/analyze` | POST | Analyze extensions |
 
-### Example API Request
+### Example: Start Operation with Tracking
 
 ```bash
-curl -X POST "http://localhost:8000/media/organize" \
+# Start operation
+curl -X POST http://localhost:8000/media/organize \
   -H "Content-Type: application/json" \
   -d '{"source_dir": "D:/Phone", "dest_dir": "D:/Organized", "dry_run": true}'
+
+# Response: {"status": "started", "job_id": "abc123", ...}
+
+# Track progress via SSE
+curl http://localhost:8000/jobs/abc123/stream
+
+# Or check status
+curl http://localhost:8000/jobs/abc123
+
+# Abort if needed
+curl -X POST http://localhost:8000/jobs/abc123/abort
 ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 Mobile-Media/
-├── organize_mobile_media.py   # Main CLI script
-├── api/                       # FastAPI application
-│   ├── main.py               # API entry point
-│   ├── schemas.py            # Pydantic models
-│   ├── routers/              # API route handlers
-│   │   ├── media.py
-│   │   ├── android.py
-│   │   ├── files.py
-│   │   └── analysis.py
-│   └── services/             # Business logic
-│       ├── core_logic.py
-│       ├── media_service.py
-│       ├── file_service.py
-│       └── android_service.py
-├── scripts/                   # Additional utility scripts
-├── requirements.txt
-└── README.md
+├── api/
+│   ├── main.py              # FastAPI app entry point
+│   ├── schemas.py           # Pydantic models
+│   ├── routers/
+│   │   ├── jobs.py          # Job management + SSE streaming
+│   │   ├── media.py         # Media organization
+│   │   ├── android.py       # Android cleanup
+│   │   ├── files.py         # File operations
+│   │   └── analysis.py      # Extension analysis
+│   ├── services/
+│   │   ├── job_manager.py   # Thread-safe job state manager
+│   │   ├── core_logic.py    # File movement utilities
+│   │   ├── media_service.py
+│   │   ├── file_service.py
+│   │   └── android_service.py
+│   └── static/
+│       ├── index.html       # Dashboard UI
+│       ├── styles.css       # Premium dark theme
+│       └── app.js           # Client-side app
+├── scripts/                  # Standalone CLI utilities
+├── organize_mobile_media.py  # Original CLI script
+└── requirements.txt
 ```
 
-## Supported File Types
+## 🎨 Technology Stack
+
+- **Backend**: FastAPI, Uvicorn, Pydantic
+- **Frontend**: Vanilla HTML/CSS/JS (no build required)
+- **Real-time**: Server-Sent Events (SSE)
+- **Threading**: Thread-safe job management
+
+## 📦 Supported File Types
 
 | Category | Extensions |
 |----------|------------|
@@ -101,12 +137,14 @@ Mobile-Media/
 | Videos | `.mov`, `.mp4`, `.avi`, `.3gp`, `.mkv`, `.webm` |
 | Other | `.gif`, `.aae` (Apple sidecar), `.plist` |
 
-## Safety Features
+## ⚡ CLI Script (Alternative)
 
-- **Dry Run Mode**: Preview all operations before execution (API default)
-- **Collision Handling**: Automatically renames files to prevent overwrites
-- **Skip System Folders**: Ignores Windows system directories and hidden folders
+For quick operations without the dashboard:
 
-## License
+```bash
+python organize_mobile_media.py "D:\Phone Backup" "D:\Organized Photos"
+```
+
+## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.
