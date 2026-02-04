@@ -1,16 +1,18 @@
 # Mobile Media Organizer
 
-A Python toolkit for organizing mobile media files (iOS & Android) with a **modern web dashboard** for real-time progress tracking and control.
+A Python toolkit for organizing mobile media files (iOS & Android) with a **Pro Max Web Dashboard** and **Enterprise-Grade Safety**.
 
 ## ✨ Features
 
 - 📱 **Universal Mobile Support** - iOS (HEIC, MOV) and Android (JPG, MP4, etc.)
+- 🛡️ **Safe Mode** - **Zero Data Loss** guarantee using "Copy-Verify-Delete" protocol
+- 🎨 **OLED Dark UI** - Premium "Pro Max" interface with True Black background
 - 📅 **Date-Based Organization** - Auto-sorts media into `YYYY-MM` folders
 - 📸 **Screenshot Detection** - Separates screenshots into dedicated folder
-- 🌐 **Web Dashboard** - Premium UI with real-time progress tracking
-- ⛔ **Abort Control** - Stop operations mid-execution
+- 🌐 **Web Dashboard** - Real-time progress tracking with SSE
+- ⛔ **Abort Control** - Graceful cancellation of running operations
 - 🔒 **Dry Run Mode** - Preview changes before executing
-- 📊 **Job History** - Track all operations with detailed stats
+- 📊 **Job History** - Track all operations with detailed logs
 
 ## 🚀 Quick Start
 
@@ -39,7 +41,15 @@ uvicorn main:app --reload --port 8000
 
 Navigate to **http://localhost:8000** in your browser.
 
-![Dashboard Preview](docs/dashboard-preview.png)
+## 🛡️ Safe Mode (Active by Default)
+
+Unlike standard file movers, this tool uses a rigorous **Copy-Verify-Delete** strategy:
+1.  **Copy**: Files are copied to the destination.
+2.  **Verify**: SHA256 checksums of source and destination are compared.
+3.  **Delete**: Source files are removed **only** if checksums match exactly.
+4.  **Integrity**: If verification fails, the operation rolls back for that file.
+
+*You can toggle Safe Mode off in the configuration panel for faster (but less secure) standard moves.*
 
 ## 🎛️ Dashboard Operations
 
@@ -57,93 +67,38 @@ Navigate to **http://localhost:8000** in your browser.
 All operations return a `job_id` for real-time tracking via SSE.
 
 ### Job Management
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/jobs` | GET | List all jobs |
-| `/jobs/{id}` | GET | Get job status |
-| `/jobs/{id}/abort` | POST | Abort a running job |
-| `/jobs/{id}/stream` | GET | SSE stream for progress |
+- `GET /jobs` - List jobs
+- `GET /jobs/{id}` - Get status
+- `POST /jobs/{id}/abort` - Stop job
+- `GET /jobs/{id}/stream` - SSE Stream
 
 ### Operations
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/media/organize` | POST | Organize media by date |
-| `/media/subfolders` | POST | Expand to daily subfolders |
-| `/android/clean` | POST | Clean Android backup |
-| `/files/organize-types` | POST | Organize by file type |
-| `/files/consolidate-pdfs` | POST | Collect all PDFs |
-| `/files/analyze` | POST | Analyze extensions |
-
-### Example: Start Operation with Tracking
-
-```bash
-# Start operation
-curl -X POST http://localhost:8000/media/organize \
-  -H "Content-Type: application/json" \
-  -d '{"source_dir": "D:/Phone", "dest_dir": "D:/Organized", "dry_run": true}'
-
-# Response: {"status": "started", "job_id": "abc123", ...}
-
-# Track progress via SSE
-curl http://localhost:8000/jobs/abc123/stream
-
-# Or check status
-curl http://localhost:8000/jobs/abc123
-
-# Abort if needed
-curl -X POST http://localhost:8000/jobs/abc123/abort
-```
+- `POST /media/organize` (supports `safe_mode: bool`)
+- `POST /media/subfolders`
+- `POST /android/clean`
+- `POST /files/*`
 
 ## 📁 Project Structure
 
 ```
 Mobile-Media/
 ├── api/
-│   ├── main.py              # FastAPI app entry point
-│   ├── schemas.py           # Pydantic models
-│   ├── routers/
-│   │   ├── jobs.py          # Job management + SSE streaming
-│   │   ├── media.py         # Media organization
-│   │   ├── android.py       # Android cleanup
-│   │   ├── files.py         # File operations
-│   │   └── analysis.py      # Extension analysis
+│   ├── main.py              # FastAPI app
+│   ├── schemas.py           # Pydantic models (with SafeMode)
+│   ├── routers/             # API Endpoints
 │   ├── services/
-│   │   ├── job_manager.py   # Thread-safe job state manager
-│   │   ├── core_logic.py    # File movement utilities
-│   │   ├── media_service.py
-│   │   ├── file_service.py
-│   │   └── android_service.py
-│   └── static/
-│       ├── index.html       # Dashboard UI
-│       ├── styles.css       # Premium dark theme
-│       └── app.js           # Client-side app
-├── scripts/                  # Standalone CLI utilities
-├── organize_mobile_media.py  # Original CLI script
+│   │   ├── core_logic.py    # Safe Move Logic (Checksums)
+│   │   └── ...
+│   └── static/              # OLED UI (HTML/CSS/JS)
+├── scripts/                 # Utilities
 └── requirements.txt
 ```
 
 ## 🎨 Technology Stack
 
-- **Backend**: FastAPI, Uvicorn, Pydantic
-- **Frontend**: Vanilla HTML/CSS/JS (no build required)
-- **Real-time**: Server-Sent Events (SSE)
-- **Threading**: Thread-safe job management
-
-## 📦 Supported File Types
-
-| Category | Extensions |
-|----------|------------|
-| Photos | `.heic`, `.jpg`, `.jpeg`, `.dng`, `.webp`, `.png`, `.arw`, `.cr2`, `.nef` |
-| Videos | `.mov`, `.mp4`, `.avi`, `.3gp`, `.mkv`, `.webm` |
-| Other | `.gif`, `.aae` (Apple sidecar), `.plist` |
-
-## ⚡ CLI Script (Alternative)
-
-For quick operations without the dashboard:
-
-```bash
-python organize_mobile_media.py "D:\Phone Backup" "D:\Organized Photos"
-```
+- **Backend**: FastAPI, Uvicorn, Pydantic, Python `hashlib`
+- **Frontend**: Vanilla HTML/CSS/JS (Fira Sans/Code Typography)
+- **Theme**: OLED Dark Mode (True Black #000000 + Neon Accents)
 
 ## 📄 License
 

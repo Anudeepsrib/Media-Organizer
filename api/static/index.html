@@ -1,180 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Media Organizer</title>
+    <title>Media Organizer Pro</title>
     <link rel="stylesheet" href="/static/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="app-container">
-        <!-- Header -->
+        <!-- Minimal Header -->
         <header class="header">
             <div class="logo">
-                <span class="logo-icon">📱</span>
-                <h1>Mobile Media Organizer</h1>
+                <!-- SVG Icon instead of emoji -->
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                <h1><span>Media</span>Organizer</h1>
             </div>
-            <div class="header-actions">
-                <a href="/docs" class="btn btn-outline" target="_blank">API Docs</a>
-            </div>
+            <p>Secure & Intelligent File Management</p>
         </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Operation Cards -->
-            <section class="operations-section">
-                <h2>Select Operation</h2>
-                <div class="operations-grid">
-                    <div class="operation-card" data-operation="media_organize">
-                        <div class="card-icon">📅</div>
+        <!-- Operation Selection -->
+        <section id="selectionSection">
+            <div class="operations-grid">
+                <!-- Card 1: Organize Media -->
+                <div class="operation-card" data-op="media_organize">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    <div class="card-content">
                         <h3>Organize Media</h3>
-                        <p>Sort photos & videos into YYYY-MM folders, separate screenshots</p>
+                        <p>Sort by Date (YYYY-MM)</p>
                     </div>
-                    <div class="operation-card" data-operation="expand_dates">
-                        <div class="card-icon">📁</div>
-                        <h3>Expand to Days</h3>
-                        <p>Organize YYYY-MM folders into daily subfolders</p>
+                </div>
+
+                <!-- Card 2: Expand Days -->
+                <div class="operation-card" data-op="subfolders">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <div class="card-content">
+                        <h3>Expand Days</h3>
+                        <p>Create Daily Subfolders</p>
                     </div>
-                    <div class="operation-card" data-operation="android_clean">
-                        <div class="card-icon">🤖</div>
+                </div>
+
+                <!-- Card 3: Clean Android -->
+                <div class="operation-card" data-op="android_clean">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                    </svg>
+                    <div class="card-content">
                         <h3>Clean Android</h3>
-                        <p>Remove WhatsApp backups, cache, and junk files</p>
+                        <p>Remove Junk & Backups</p>
                     </div>
-                    <div class="operation-card" data-operation="organize_types">
-                        <div class="card-icon">📦</div>
-                        <h3>Organize by Type</h3>
-                        <p>Sort installers and archives into categories</p>
+                </div>
+
+                <!-- Card 4: Organize Types -->
+                <div class="operation-card" data-op="organize_types">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                        <line x1="12" y1="22.08" x2="12" y2="12" />
+                    </svg>
+                    <div class="card-content">
+                        <h3>Organize Types</h3>
+                        <p>Archives & Installers</p>
                     </div>
-                    <div class="operation-card" data-operation="consolidate_pdfs">
-                        <div class="card-icon">📄</div>
+                </div>
+
+                <!-- Card 5: Collect PDFs -->
+                <div class="operation-card" data-op="consolidate_pdfs">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                    <div class="card-content">
                         <h3>Collect PDFs</h3>
-                        <p>Find all PDFs and move to one location</p>
+                        <p>Consolidate Documents</p>
                     </div>
-                    <div class="operation-card" data-operation="analyze_extensions">
-                        <div class="card-icon">📊</div>
+                </div>
+
+                <!-- Card 6: Analyze -->
+                <div class="operation-card" data-op="analyze">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10" />
+                        <line x1="12" y1="20" x2="12" y2="4" />
+                        <line x1="6" y1="20" x2="6" y2="14" />
+                    </svg>
+                    <div class="card-content">
                         <h3>Analyze</h3>
-                        <p>Get file extension statistics (read-only)</p>
+                        <p>Extension Statistics</p>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Configuration Panel -->
-            <section class="config-section" id="configPanel" style="display: none;">
-                <h2 id="configTitle">Configure Operation</h2>
-                <form id="configForm">
-                    <div class="form-group">
-                        <label for="sourceDir">Source Directory</label>
-                        <input type="text" id="sourceDir" placeholder="e.g. D:\Phone Backup" required>
-                    </div>
-                    <div class="form-group" id="destDirGroup">
-                        <label for="destDir">Destination Directory</label>
-                        <input type="text" id="destDir" placeholder="e.g. D:\Organized Photos">
-                    </div>
-                    <div class="form-group" id="thresholdGroup" style="display: none;">
-                        <label for="threshold">Cache Threshold (MB)</label>
-                        <input type="number" id="threshold" value="50" min="1">
-                    </div>
-                    <div class="form-group checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="dryRun" checked>
-                            <span class="checkmark"></span>
-                            Dry Run (preview only, no files moved)
+        <!-- Configuration Panel -->
+        <section id="configSection" class="config-section" style="display: none;">
+            <h2 id="configTitle">Configure Operation</h2>
+            <form id="configForm">
+                <div class="form-group">
+                    <label for="sourceDir">Source Directory</label>
+                    <input type="text" id="sourceDir" placeholder="C:\Users\Name\Downloads" required>
+                </div>
+
+                <div class="form-group" id="destDirGroup">
+                    <label for="destDir">Destination Directory</label>
+                    <input type="text" id="destDir" placeholder="D:\Backups\Media">
+                </div>
+
+                <div class="form-group" id="thresholdGroup" style="display: none;">
+                    <label for="threshold">Clean Threshold (MB)</label>
+                    <input type="number" id="threshold" value="50">
+                </div>
+
+                <div class="toggles-row">
+                    <div class="checkbox-group">
+                        <label class="toggle">
+                            <input type="checkbox" id="safeMode" checked>
+                            <span class="slider"></span>
                         </label>
+                        <div>
+                            <span class="toggle-label">Safe Mode</span>
+                            <span class="toggle-hint">Copy + Verify + Delete</span>
+                        </div>
                     </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="startBtn">
-                            <span class="btn-text">Start Operation</span>
-                            <span class="btn-loader" style="display: none;"></span>
-                        </button>
-                    </div>
-                </form>
-            </section>
 
-            <!-- Progress Section -->
-            <section class="progress-section" id="progressSection" style="display: none;">
-                <div class="progress-header">
-                    <h2 id="progressTitle">Processing...</h2>
-                    <button class="btn btn-danger" id="abortBtn">
-                        <span>⛔ Abort</span>
-                    </button>
-                </div>
-                
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <div class="progress-stats">
-                        <span id="progressPercent">0%</span>
-                        <span id="progressCount">0 / 0 files</span>
+                    <div class="checkbox-group">
+                        <label class="toggle">
+                            <input type="checkbox" id="dryRun" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <div>
+                            <span class="toggle-label">Dry Run</span>
+                            <span class="toggle-hint">Preview only</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="current-file" id="currentFile">
-                    <span class="file-label">Current:</span>
-                    <span class="file-name" id="currentFileName">Initializing...</span>
+                <div class="config-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="startBtn">Start Operation</button>
                 </div>
+            </form>
+        </section>
 
-                <div class="status-message" id="statusMessage">
-                    Preparing operation...
+        <!-- Progress Section -->
+        <section id="progressSection" class="progress-section" style="display: none;">
+            <div class="progress-header">
+                <h2>Processing...</h2>
+                <div class="progress-stats">
+                    <span class="progress-percent" id="progressPercent">0%</span>
+                    <div class="progress-count" id="progressCount">0 / 0 files</div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Results Section -->
-            <section class="results-section" id="resultsSection" style="display: none;">
-                <div class="results-header">
-                    <h2 id="resultsTitle">Operation Complete</h2>
-                    <span class="results-badge" id="resultsBadge">Success</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="status-text" id="statusMessage">Initializing...</div>
+            <div class="current-file" id="currentFileName"></div>
+
+            <div class="abort-container">
+                <button class="btn btn-danger" id="abortBtn">Abort Operation</button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-section" style="display: none;">
+            <div class="results-header">
+                <h2>Operation Complete</h2>
+            </div>
+
+            <div class="results-stats">
+                <div class="stat">
+                    <span class="stat-value success" id="statMoved">0</span>
+                    <span class="stat-label">Moved</span>
                 </div>
-                
-                <div class="results-stats">
-                    <div class="stat-card">
-                        <span class="stat-value" id="movedCount">0</span>
-                        <span class="stat-label">Files Processed</span>
+                <div class="stat">
+                    <span class="stat-value danger" id="statErrors">0</span>
+                    <span class="stat-label">Errors</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value accent" id="statDuration">0s</span>
+                    <span class="stat-label">Duration</span>
+                </div>
+            </div>
+
+            <div class="log-container" id="detailsContent"></div>
+
+            <div class="results-actions">
+                <button class="btn btn-secondary" onclick="location.reload()">New Operation</button>
+            </div>
+        </section>
+
+        <!-- Footer Branding -->
+        <footer class="footer">
+            Built by <strong>Anudeep Sri Bathina</strong> with the help of <strong>Claude & Gemini</strong>
+        </footer>
+    </div>
+
+    <!-- Abort Confirmation Modal -->
+    <div id="abortModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="icon-circle danger">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3>Stop Operation?</h3>
+            </div>
+
+            <div class="modal-body">
+                <p>The operation will stop after the current file finishes processing.</p>
+                <div class="info-badge">
+                    <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    <div>
+                        <strong>Safe Mode Active</strong>
+                        <div class="badge-subtext">No data will be lost. Source files are intact.</div>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-value" id="errorCount">0</span>
-                        <span class="stat-label">Errors</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-value" id="duration">0s</span>
-                        <span class="stat-label">Duration</span>
-                    </div>
                 </div>
+            </div>
 
-                <div class="results-details" id="resultsDetails">
-                    <h3>Details</h3>
-                    <div class="details-content" id="detailsContent"></div>
-                </div>
-
-                <div class="results-actions">
-                    <button class="btn btn-primary" id="newOperationBtn">Start New Operation</button>
-                </div>
-            </section>
-
-            <!-- Jobs History -->
-            <section class="jobs-section">
-                <h2>Recent Jobs</h2>
-                <div class="jobs-list" id="jobsList">
-                    <p class="no-jobs">No recent jobs</p>
-                </div>
-            </section>
-        </main>
-
-        <!-- Abort Confirmation Modal -->
-        <div class="modal" id="abortModal">
-            <div class="modal-content">
-                <h3>⚠️ Confirm Abort</h3>
-                <p>Are you sure you want to abort this operation? Files already processed will remain in their new locations.</p>
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" id="abortCancelBtn">Continue Operation</button>
-                    <button class="btn btn-danger" id="abortConfirmBtn">Abort Now</button>
-                </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelAbortBtn">Resume</button>
+                <button class="btn btn-danger" id="confirmAbortBtn">Stop</button>
             </div>
         </div>
     </div>
 
     <script src="/static/app.js"></script>
 </body>
+
 </html>

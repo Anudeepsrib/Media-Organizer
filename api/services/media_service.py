@@ -10,7 +10,7 @@ MEDIA_EXTENSIONS = {
 }
 
 
-def organize_media_by_date(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: str = None):
+def organize_media_by_date(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: str = None, safe_mode: bool = True):
     """
     Moves media files into YYYY-MM folders and Screenshots folder.
     Supports job tracking and abort functionality.
@@ -39,6 +39,17 @@ def organize_media_by_date(source_dir: str, dest_dir: str, dry_run: bool = True,
     if job_id:
         job_manager.start_job(job_id, total)
     
+    # Helper for progress tracking inside safe_move
+    def progress_callback(msg: str):
+        if job_id:
+            job_manager.update_progress(
+                job_id, 
+                current=i+1, 
+                total=total, 
+                message=msg, 
+                current_file=path.name
+            )
+
     for i, path in enumerate(all_files):
         # Check for abort
         if job_id and job_manager.is_aborted(job_id):
@@ -69,7 +80,7 @@ def organize_media_by_date(source_dir: str, dest_dir: str, dry_run: bool = True,
                 reason = "Date extraction failed"
         
         # Execute
-        res = safe_move_file(path, target_subfolder, dry_run, reason)
+        res = safe_move_file(path, target_subfolder, dry_run, reason, safe_mode, progress_callback)
         results["details"].append(res)
         
         if res.get("status") in ["moved", "dry_run"]:
@@ -79,13 +90,13 @@ def organize_media_by_date(source_dir: str, dest_dir: str, dry_run: bool = True,
         else:
             results["skipped"] += 1
         
-        # Update progress
+        # Update progress (final)
         if job_id:
             job_manager.update_progress(
                 job_id,
                 current=i + 1,
                 total=total,
-                message=f"{'[DRY RUN] ' if dry_run else ''}Processing media files...",
+                message=f"{'[DRY RUN] ' if dry_run else ''}Processed {path.name}",
                 current_file=path.name
             )
     
@@ -96,7 +107,7 @@ def organize_media_by_date(source_dir: str, dest_dir: str, dry_run: bool = True,
     return results
 
 
-def organize_expanded_dates(root_dir: str, dry_run: bool = True, job_id: str = None):
+def organize_expanded_dates(root_dir: str, dry_run: bool = True, job_id: str = None, safe_mode: bool = True):
     """
     Scans YYYY-MM folders and moves files into DD subfolders.
     Supports job tracking and abort functionality.
@@ -126,6 +137,17 @@ def organize_expanded_dates(root_dir: str, dry_run: bool = True, job_id: str = N
     if job_id:
         job_manager.start_job(job_id, total)
     
+    # Helper for progress tracking
+    def progress_callback(msg: str):
+        if job_id:
+            job_manager.update_progress(
+                job_id, 
+                current=i+1, 
+                total=total, 
+                message=msg, 
+                current_file=file_path.name
+            )
+
     for i, (folder, file_path) in enumerate(all_files):
         # Check for abort
         if job_id and job_manager.is_aborted(job_id):
@@ -139,7 +161,7 @@ def organize_expanded_dates(root_dir: str, dry_run: bool = True, job_id: str = N
             day_str = datetime.fromtimestamp(mtime).strftime("%d")
             
             day_folder = folder / day_str
-            res = safe_move_file(file_path, day_folder, dry_run, f"Day {day_str}")
+            res = safe_move_file(file_path, day_folder, dry_run, f"Day {day_str}", safe_mode, progress_callback)
             results["details"].append(res)
             
             if res.get("status") in ["moved", "dry_run"]:
@@ -151,7 +173,7 @@ def organize_expanded_dates(root_dir: str, dry_run: bool = True, job_id: str = N
                     job_id,
                     current=i + 1,
                     total=total,
-                    message=f"{'[DRY RUN] ' if dry_run else ''}Expanding to daily folders...",
+                    message=f"{'[DRY RUN] ' if dry_run else ''}Processed {file_path.name}",
                     current_file=file_path.name
                 )
                 

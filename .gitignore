@@ -64,3 +64,12 @@ htmlcov/
 
 # Local development
 *.local
+
+# Test directories
+test_media/
+test_organized/
+verify_backend.py
+
+# AI Tooling
+.agent/
+

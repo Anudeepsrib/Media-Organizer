@@ -4,7 +4,7 @@ from services.core_logic import safe_move_file, logger
 from services.job_manager import job_manager
 
 
-def collect_pdfs(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: str = None):
+def collect_pdfs(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: str = None, safe_mode: bool = True):
     """
     Finds all PDFs in source_dir recursively and moves them to dest_dir.
     Supports job tracking and abort functionality.
@@ -31,6 +31,17 @@ def collect_pdfs(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: s
     if job_id:
         job_manager.start_job(job_id, total)
     
+    # Helper
+    def progress_callback(msg: str):
+        if job_id:
+            job_manager.update_progress(
+                job_id, 
+                current=i+1, 
+                total=total, 
+                message=msg, 
+                current_file=path.name
+            )
+
     for i, path in enumerate(all_files):
         # Check for abort
         if job_id and job_manager.is_aborted(job_id):
@@ -39,7 +50,7 @@ def collect_pdfs(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: s
             job_manager.mark_aborted(job_id, results)
             return results
             
-        res = safe_move_file(path, dest, dry_run, "Consolidate PDF")
+        res = safe_move_file(path, dest, dry_run, "Consolidate PDF", safe_mode, progress_callback)
         results["details"].append(res)
         
         if res.get("status") in ["moved", "dry_run"]:
@@ -51,7 +62,7 @@ def collect_pdfs(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: s
                 job_id,
                 current=i + 1,
                 total=total,
-                message=f"{'[DRY RUN] ' if dry_run else ''}Collecting PDFs...",
+                message=f"{'[DRY RUN] ' if dry_run else ''}Processed {path.name}",
                 current_file=path.name
             )
     
@@ -61,7 +72,7 @@ def collect_pdfs(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: s
     return results
 
 
-def organize_files_by_type(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: str = None):
+def organize_files_by_type(source_dir: str, dest_dir: str, dry_run: bool = True, job_id: str = None, safe_mode: bool = True):
     """
     Organizes Installers and Archives into categorized folders.
     Supports job tracking and abort functionality.
@@ -92,6 +103,17 @@ def organize_files_by_type(source_dir: str, dest_dir: str, dry_run: bool = True,
     if job_id:
         job_manager.start_job(job_id, total)
     
+    # Helper
+    def progress_callback(msg: str):
+        if job_id:
+            job_manager.update_progress(
+                job_id, 
+                current=i+1, 
+                total=total, 
+                message=msg, 
+                current_file=path.name
+            )
+
     for i, (path, category) in enumerate(all_files):
         # Check for abort
         if job_id and job_manager.is_aborted(job_id):
@@ -101,7 +123,7 @@ def organize_files_by_type(source_dir: str, dest_dir: str, dry_run: bool = True,
             return results
         
         target_subfolder = dest / category
-        res = safe_move_file(path, target_subfolder, dry_run, category)
+        res = safe_move_file(path, target_subfolder, dry_run, category, safe_mode, progress_callback)
         results["details"].append(res)
         
         if res.get("status") in ["moved", "dry_run"]:
@@ -113,7 +135,7 @@ def organize_files_by_type(source_dir: str, dest_dir: str, dry_run: bool = True,
                 job_id,
                 current=i + 1,
                 total=total,
-                message=f"{'[DRY RUN] ' if dry_run else ''}Organizing files by type...",
+                message=f"{'[DRY RUN] ' if dry_run else ''}Processed {path.name}",
                 current_file=path.name
             )
     
@@ -126,6 +148,7 @@ def organize_files_by_type(source_dir: str, dest_dir: str, dry_run: bool = True,
 def analyze_extensions(source_dir: str, job_id: str = None):
     """
     Returns statistics of file extensions in the directory.
+    (No safe mode needed as it's read-only)
     """
     source = Path(source_dir)
     counts = defaultdict(int)

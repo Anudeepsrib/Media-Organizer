@@ -4,7 +4,7 @@ from services.core_logic import safe_move_file, logger
 from services.job_manager import job_manager
 
 
-def clean_android_backup(source_dir: str, threshold_mb: int = 50, dry_run: bool = True, job_id: str = None):
+def clean_android_backup(source_dir: str, threshold_mb: int = 50, dry_run: bool = True, job_id: str = None, safe_mode: bool = True):
     """
     Organizes Android backup folder: moves WhatsApp backups, Junk, and Large Cache files.
     Supports job tracking and abort functionality.
@@ -68,6 +68,17 @@ def clean_android_backup(source_dir: str, threshold_mb: int = 50, dry_run: bool 
     if job_id:
         job_manager.start_job(job_id, total)
     
+    # Helper
+    def progress_callback(msg: str):
+        if job_id:
+            job_manager.update_progress(
+                job_id, 
+                current=i+1, 
+                total=total, 
+                message=msg, 
+                current_file=path.name
+            )
+
     for i, (path, target_dir, reason) in enumerate(all_files):
         # Check for abort
         if job_id and job_manager.is_aborted(job_id):
@@ -76,7 +87,7 @@ def clean_android_backup(source_dir: str, threshold_mb: int = 50, dry_run: bool 
             job_manager.mark_aborted(job_id, results)
             return results
         
-        res = safe_move_file(path, target_dir, dry_run, reason)
+        res = safe_move_file(path, target_dir, dry_run, reason, safe_mode, progress_callback)
         results["details"].append(res)
         
         if res.get("status") in ["moved", "dry_run"]:
@@ -88,7 +99,7 @@ def clean_android_backup(source_dir: str, threshold_mb: int = 50, dry_run: bool 
                 job_id,
                 current=i + 1,
                 total=total,
-                message=f"{'[DRY RUN] ' if dry_run else ''}Cleaning Android backup...",
+                message=f"{'[DRY RUN] ' if dry_run else ''}Processed {path.name}",
                 current_file=path.name
             )
     

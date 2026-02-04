@@ -6,10 +6,10 @@ from schemas import AndroidRequest
 router = APIRouter()
 
 
-def run_clean_android(source_dir: str, threshold_mb: int, dry_run: bool, job_id: str):
+def run_clean_android(source_dir: str, threshold_mb: int, dry_run: bool, job_id: str, safe_mode: bool):
     """Background task for Android cleanup."""
     try:
-        android_service.clean_android_backup(source_dir, threshold_mb, dry_run, job_id)
+        android_service.clean_android_backup(source_dir, threshold_mb, dry_run, job_id, safe_mode)
     except Exception as e:
         job_manager.fail_job(job_id, str(e))
 
@@ -27,7 +27,8 @@ def clean_android_backup(request: AndroidRequest, background_tasks: BackgroundTa
         request.source_dir,
         request.threshold_mb,
         request.dry_run,
-        job_id
+        job_id,
+        request.safe_mode
     )
     
     return {

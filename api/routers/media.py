@@ -6,18 +6,18 @@ from schemas import MediaRequest, BaseRequest
 router = APIRouter()
 
 
-def run_media_organize(source_dir: str, dest_dir: str, dry_run: bool, job_id: str):
+def run_media_organize(source_dir: str, dest_dir: str, dry_run: bool, job_id: str, safe_mode: bool):
     """Background task for media organization."""
     try:
-        media_service.organize_media_by_date(source_dir, dest_dir, dry_run, job_id)
+        media_service.organize_media_by_date(source_dir, dest_dir, dry_run, job_id, safe_mode)
     except Exception as e:
         job_manager.fail_job(job_id, str(e))
 
 
-def run_expand_dates(source_dir: str, dry_run: bool, job_id: str):
+def run_expand_dates(source_dir: str, dry_run: bool, job_id: str, safe_mode: bool):
     """Background task for date expansion."""
     try:
-        media_service.organize_expanded_dates(source_dir, dry_run, job_id)
+        media_service.organize_expanded_dates(source_dir, dry_run, job_id, safe_mode)
     except Exception as e:
         job_manager.fail_job(job_id, str(e))
 
@@ -37,7 +37,8 @@ def organize_media(request: MediaRequest, background_tasks: BackgroundTasks):
         request.source_dir,
         request.dest_dir,
         request.dry_run,
-        job_id
+        job_id,
+        request.safe_mode
     )
     
     return {
@@ -61,7 +62,8 @@ def organize_subfolders(request: BaseRequest, background_tasks: BackgroundTasks)
         run_expand_dates,
         request.source_dir,
         request.dry_run,
-        job_id
+        job_id,
+        request.safe_mode
     )
     
     return {

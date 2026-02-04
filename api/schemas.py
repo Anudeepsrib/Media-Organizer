@@ -4,6 +4,7 @@ from typing import Optional
 class BaseRequest(BaseModel):
     source_dir: str = Field(..., description="Absolute path to the source directory")
     dry_run: bool = Field(True, description="If true, no files will be moved")
+    safe_mode: bool = Field(True, description="If true, use copy-verify-delete instead of move")
 
 class MediaRequest(BaseRequest):
     dest_dir: str = Field(..., description="Destination base directory for media")
