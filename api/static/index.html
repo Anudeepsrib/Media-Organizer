@@ -109,6 +109,99 @@
         </section>
 
         <!-- Configuration Panel -->
+        <!-- AI Tools Section -->
+        <section id="aiSection" class="ai-section">
+            <div class="ai-header">
+                <svg class="ai-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M12 2a4 4 0 014 4v1a1 1 0 001 1h1a4 4 0 010 8h-1a1 1 0 00-1 1v1a4 4 0 01-8 0v-1a1 1 0 00-1-1H6a4 4 0 010-8h1a1 1 0 001-1V6a4 4 0 014-4z" />
+                    <circle cx="12" cy="12" r="3" />
+                </svg>
+                <h2>AI Tools</h2>
+                <span class="ai-badge">Gemini</span>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="ai-search-container">
+                <div class="ai-search-bar">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <input type="text" id="aiSearchInput"
+                        placeholder='Search: "photos of a sunset", "documents", "blurry images"...' />
+                    <button class="btn btn-primary btn-sm" id="aiSearchBtn">Search</button>
+                </div>
+            </div>
+
+            <!-- AI Action Buttons -->
+            <div class="ai-actions">
+                <div class="ai-action-card" id="aiIndexCard">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                    <div class="card-content">
+                        <h3>Index Library</h3>
+                        <p>Analyze images with AI</p>
+                    </div>
+                </div>
+                <div class="ai-action-card" id="aiSuggestCard">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    <div class="card-content">
+                        <h3>Smart Suggest</h3>
+                        <p>AI folder recommendations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Index Config (hidden by default) -->
+            <div id="aiIndexConfig" class="ai-config" style="display: none;">
+                <div class="form-group">
+                    <label for="aiSourceDir">Directory to Index</label>
+                    <input type="text" id="aiSourceDir" placeholder="C:\Users\Name\Photos" required>
+                </div>
+                <div class="checkbox-group" style="margin-bottom: 1rem;">
+                    <label class="toggle">
+                        <input type="checkbox" id="aiForceReindex">
+                        <span class="slider"></span>
+                    </label>
+                    <div>
+                        <span class="toggle-label">Force Re-index</span>
+                        <span class="toggle-hint">Re-analyze already indexed files</span>
+                    </div>
+                </div>
+                <div class="config-actions">
+                    <button type="button" class="btn btn-secondary" id="aiIndexCancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="aiIndexStart">Start Indexing</button>
+                </div>
+            </div>
+
+            <!-- AI Suggest Config (hidden by default) -->
+            <div id="aiSuggestConfig" class="ai-config" style="display: none;">
+                <div class="form-group">
+                    <label for="aiSuggestDir">Directory to Analyze</label>
+                    <input type="text" id="aiSuggestDir" placeholder="C:\Users\Name\Photos" required>
+                </div>
+                <div class="config-actions">
+                    <button type="button" class="btn btn-secondary" id="aiSuggestCancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="aiSuggestStart">Get Suggestions</button>
+                </div>
+            </div>
+
+            <!-- AI Search Results -->
+            <div id="aiSearchResults" class="ai-results" style="display: none;">
+                <div class="ai-results-header">
+                    <h3 id="aiResultsTitle">Results</h3>
+                    <button class="btn btn-secondary btn-sm" id="aiResultsClose">Close</button>
+                </div>
+                <div class="ai-results-grid" id="aiResultsGrid"></div>
+            </div>
+        </section>
+
+        <!-- Configuration Panel -->
         <section id="configSection" class="config-section" style="display: none;">
             <h2 id="configTitle">Configure Operation</h2>
             <form id="configForm">

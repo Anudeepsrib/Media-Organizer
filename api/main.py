@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from routers import media, android, files, analysis, jobs
+from routers import media, android, files, analysis, jobs, ai
 from pathlib import Path
 
 app = FastAPI(
@@ -31,6 +31,7 @@ app.include_router(media.router, prefix="/media", tags=["Media"])
 app.include_router(android.router, prefix="/android", tags=["Android"])
 app.include_router(files.router, prefix="/files", tags=["Files"])
 app.include_router(analysis.router, prefix="/analyze", tags=["Analysis"])
+app.include_router(ai.router, prefix="/ai", tags=["AI"])
 
 
 @app.get("/")

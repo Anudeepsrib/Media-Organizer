@@ -370,3 +370,186 @@ elements.confirmAbortBtn.addEventListener('click', async () => {
 
 // Initialize
 // (No need for refreshJobsList loop yet? I removed the jobs widget from index layout)
+
+// ========================================
+// AI Tools
+// ========================================
+
+const aiElements = {
+    searchInput: document.getElementById('aiSearchInput'),
+    searchBtn: document.getElementById('aiSearchBtn'),
+    indexCard: document.getElementById('aiIndexCard'),
+    suggestCard: document.getElementById('aiSuggestCard'),
+    indexConfig: document.getElementById('aiIndexConfig'),
+    suggestConfig: document.getElementById('aiSuggestConfig'),
+    indexCancel: document.getElementById('aiIndexCancel'),
+    suggestCancel: document.getElementById('aiSuggestCancel'),
+    indexStart: document.getElementById('aiIndexStart'),
+    suggestStart: document.getElementById('aiSuggestStart'),
+    sourceDir: document.getElementById('aiSourceDir'),
+    suggestDir: document.getElementById('aiSuggestDir'),
+    forceReindex: document.getElementById('aiForceReindex'),
+    resultsSection: document.getElementById('aiSearchResults'),
+    resultsTitle: document.getElementById('aiResultsTitle'),
+    resultsGrid: document.getElementById('aiResultsGrid'),
+    resultsClose: document.getElementById('aiResultsClose')
+};
+
+// Search
+aiElements.searchBtn.addEventListener('click', searchMedia);
+aiElements.searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') searchMedia();
+});
+
+async function searchMedia() {
+    const query = aiElements.searchInput.value.trim();
+    if (!query) return;
+
+    aiElements.searchBtn.disabled = true;
+    aiElements.searchBtn.textContent = 'Searching...';
+
+    try {
+        const data = await apiRequest('/ai/search', 'POST', { query, top_k: 20 });
+        renderAIResults(data);
+    } catch (error) {
+        alert('Search Error: ' + error.message);
+    } finally {
+        aiElements.searchBtn.disabled = false;
+        aiElements.searchBtn.textContent = 'Search';
+    }
+}
+
+function renderAIResults(data) {
+    const results = data.results || [];
+    aiElements.resultsTitle.textContent = `${results.length} result${results.length !== 1 ? 's' : ''} for "${data.query}"`;
+    aiElements.resultsSection.style.display = 'block';
+
+    if (results.length === 0) {
+        aiElements.resultsGrid.innerHTML = '<div class="ai-no-results">No matches found. Try indexing your library first.</div>';
+        return;
+    }
+
+    aiElements.resultsGrid.innerHTML = results.map(r => `
+        <div class="ai-result-card">
+            <div class="ai-result-info">
+                <h4>${r.file}</h4>
+                <p class="ai-result-desc">${r.description || 'No description'}</p>
+                <div class="ai-result-tags">
+                    ${(r.tags || []).map(t => `<span class="ai-tag">${t}</span>`).join('')}
+                </div>
+                <div class="ai-result-meta">
+                    <span class="ai-meta-scene">${r.scene || ''}</span>
+                    <span class="ai-meta-score">Quality: ${r.quality_score || '?'}/10</span>
+                    <span class="ai-meta-relevance">Match: ${Math.round((r.relevance_score || 0) * 100)}%</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+aiElements.resultsClose.addEventListener('click', () => {
+    aiElements.resultsSection.style.display = 'none';
+});
+
+// Index Library
+aiElements.indexCard.addEventListener('click', () => {
+    aiElements.indexConfig.style.display = 'block';
+    aiElements.suggestConfig.style.display = 'none';
+});
+
+aiElements.indexCancel.addEventListener('click', () => {
+    aiElements.indexConfig.style.display = 'none';
+});
+
+aiElements.indexStart.addEventListener('click', async () => {
+    const sourceDir = aiElements.sourceDir.value.trim();
+    if (!sourceDir) { alert('Please enter a directory path.'); return; }
+
+    aiElements.indexStart.disabled = true;
+    aiElements.indexStart.textContent = 'Starting...';
+
+    try {
+        state.startTime = Date.now();
+        const response = await apiRequest('/ai/index', 'POST', {
+            source_dir: sourceDir,
+            force_reindex: aiElements.forceReindex.checked
+        });
+
+        if (response.job_id) {
+            state.currentJobId = response.job_id;
+            aiElements.indexConfig.style.display = 'none';
+            // Hide the selection grid and AI section, show progress
+            elements.selectionSection.style.display = 'none';
+            document.getElementById('aiSection').style.display = 'none';
+            showProgressSection();
+            connectJobStream(response.job_id);
+        }
+    } catch (error) {
+        alert('Index Error: ' + error.message);
+    } finally {
+        aiElements.indexStart.disabled = false;
+        aiElements.indexStart.textContent = 'Start Indexing';
+    }
+});
+
+// Smart Suggest
+aiElements.suggestCard.addEventListener('click', () => {
+    aiElements.suggestConfig.style.display = 'block';
+    aiElements.indexConfig.style.display = 'none';
+});
+
+aiElements.suggestCancel.addEventListener('click', () => {
+    aiElements.suggestConfig.style.display = 'none';
+});
+
+aiElements.suggestStart.addEventListener('click', async () => {
+    const dir = aiElements.suggestDir.value.trim();
+    if (!dir) { alert('Please enter a directory path.'); return; }
+
+    aiElements.suggestStart.disabled = true;
+    aiElements.suggestStart.textContent = 'Analyzing...';
+
+    try {
+        const data = await apiRequest('/ai/suggestions', 'POST', { file_path: dir });
+        renderSuggestions(data);
+    } catch (error) {
+        alert('Suggestion Error: ' + error.message);
+    } finally {
+        aiElements.suggestStart.disabled = false;
+        aiElements.suggestStart.textContent = 'Get Suggestions';
+    }
+});
+
+function renderSuggestions(data) {
+    if (data.error) {
+        alert('Error: ' + data.error);
+        return;
+    }
+
+    aiElements.resultsTitle.textContent = 'AI Organization Suggestions';
+    aiElements.resultsSection.style.display = 'block';
+    aiElements.suggestConfig.style.display = 'none';
+
+    const structure = data.suggested_structure || {};
+    const rationale = data.rationale || '';
+
+    let html = `<div class="ai-suggestion-rationale">${rationale}</div>`;
+    html += '<div class="ai-suggestion-folders">';
+
+    for (const [folder, files] of Object.entries(structure)) {
+        html += `
+            <div class="ai-suggestion-folder">
+                <div class="ai-folder-name">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                    ${folder}
+                </div>
+                <div class="ai-folder-files">${(files || []).map(f => `<span class="ai-tag">${f}</span>`).join('')}</div>
+            </div>
+        `;
+    }
+    html += '</div>';
+
+    aiElements.resultsGrid.innerHTML = html;
+}

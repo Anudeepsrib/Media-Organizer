@@ -17,3 +17,19 @@ class FileTypeRequest(BaseRequest):
 
 class PDFRequest(BaseRequest):
     dest_dir: str = Field(..., description="Destination directory for consolidated PDFs")
+
+
+# --- AI Request Models ---
+
+class AIIndexRequest(BaseModel):
+    source_dir: str = Field(..., description="Directory to index with AI analysis")
+    force_reindex: bool = Field(False, description="Re-analyze files even if already indexed")
+
+class AISearchRequest(BaseModel):
+    query: str = Field(..., description="Natural language search query")
+    top_k: int = Field(10, description="Number of results to return", ge=1, le=100)
+    source_dir: Optional[str] = Field(None, description="Optional: limit search to this directory")
+
+class AIAnalyzeRequest(BaseModel):
+    file_path: str = Field(..., description="Absolute path to the file or directory to analyze")
+

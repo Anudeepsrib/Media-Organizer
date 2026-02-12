@@ -94,10 +94,41 @@ Mobile-Media/
 └── requirements.txt
 ```
 
+## 🤖 AI Features (Gemini-Powered)
+
+The dashboard includes an **AI Tools** section powered by Google Gemini for intelligent media management.
+
+| Feature | Description |
+|---------|-------------|
+| **Semantic Search** | Search images with natural language: *"photos of a sunset at the beach"* |
+| **Auto-Tagging** | AI-generated labels for scene, objects, quality, and more |
+| **Index Library** | Batch-analyze your media library and store results locally |
+| **Smart Suggest** | Get AI-powered folder organization recommendations |
+
+### AI Setup
+
+```bash
+# Set your Gemini API key (get one at https://aistudio.google.com/apikey)
+set GEMINI_API_KEY=your_api_key_here   # Windows
+# export GEMINI_API_KEY=your_api_key_here  # macOS/Linux
+```
+
+### AI API Endpoints
+
+- `POST /ai/index` — Index a media directory (background job)
+- `POST /ai/search` — Semantic search across indexed media
+- `POST /ai/analyze` — Analyze a single image file
+- `POST /ai/suggestions` — Get AI folder recommendations
+
+### ⚠️ Data Privacy Notice
+
+> **The AI features send image thumbnails (resized to max 512px) to the Google Gemini API for analysis.** No files are uploaded permanently — only transient API calls are made. Image data is processed according to [Google's API Terms of Service](https://ai.google.dev/terms). If you are working with sensitive or private media, review Google's data usage policies before enabling AI features. All AI-generated metadata is stored **locally** in a ChromaDB database (`api/.chromadb/`) and never leaves your machine.
+
 ## 🎨 Technology Stack
 
 - **Backend**: FastAPI, Uvicorn, Pydantic, Python `hashlib`
-- **Frontend**: Vanilla HTML/CSS/JS (Fira Sans/Code Typography)
+- **AI**: Google Gemini (Vision + Embeddings), ChromaDB, Pillow
+- **Frontend**: Vanilla HTML/CSS/JS (Inter/JetBrains Mono Typography)
 - **Theme**: OLED Dark Mode (True Black #000000 + Neon Accents)
 
 ## 📄 License
