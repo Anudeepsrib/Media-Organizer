@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 # Mount static files for UI
-static_path = Path(__file__).parent / "static"
+static_path = Path(__file__).parent.parent / "frontend"
 if static_path.exists():
     app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
 

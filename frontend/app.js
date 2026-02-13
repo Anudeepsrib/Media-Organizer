@@ -212,7 +212,7 @@ async function pollJobStatus(jobId) {
 
 function selectOperation(operation) {
     // Highlight selection
-    document.querySelectorAll('.operation-card').forEach(card => {
+    document.querySelectorAll('.operation-item').forEach(card => {
         if (card.dataset.op === operation) {
             card.classList.add('selected');
         } else {
@@ -242,7 +242,7 @@ function hideConfigPanel() {
     elements.configSection.style.display = 'none';
     elements.selectionSection.style.display = 'block'; // Show grid again
 
-    document.querySelectorAll('.operation-card').forEach(card => {
+    document.querySelectorAll('.operation-item').forEach(card => {
         card.classList.remove('selected');
     });
     state.selectedOperation = null;
@@ -315,7 +315,7 @@ function renderDetails(result) {
 // ========================================
 
 // Card Selection
-document.querySelectorAll('.operation-card').forEach(card => {
+document.querySelectorAll('.operation-item').forEach(card => {
     card.addEventListener('click', () => {
         selectOperation(card.dataset.op);
     });
@@ -350,7 +350,7 @@ elements.configForm.addEventListener('submit', async (e) => {
             connectJobStream(response.job_id);
         }
     } catch (error) {
-        alert('Error: ' + error.message);
+        showToast('Operation Failed: ' + error.message, 'error');
     } finally {
         elements.startBtn.disabled = false;
         elements.startBtn.textContent = 'Start Operation';
@@ -412,7 +412,7 @@ async function searchMedia() {
         const data = await apiRequest('/ai/search', 'POST', { query, top_k: 20 });
         renderAIResults(data);
     } catch (error) {
-        alert('Search Error: ' + error.message);
+        showToast('Search Failed: ' + error.message, 'error');
     } finally {
         aiElements.searchBtn.disabled = false;
         aiElements.searchBtn.textContent = 'Search';
@@ -463,7 +463,7 @@ aiElements.indexCancel.addEventListener('click', () => {
 
 aiElements.indexStart.addEventListener('click', async () => {
     const sourceDir = aiElements.sourceDir.value.trim();
-    if (!sourceDir) { alert('Please enter a directory path.'); return; }
+    if (!sourceDir) { showToast('Please enter a directory path.', 'info'); return; }
 
     aiElements.indexStart.disabled = true;
     aiElements.indexStart.textContent = 'Starting...';
@@ -485,7 +485,7 @@ aiElements.indexStart.addEventListener('click', async () => {
             connectJobStream(response.job_id);
         }
     } catch (error) {
-        alert('Index Error: ' + error.message);
+        showToast('Index Failed: ' + error.message, 'error');
     } finally {
         aiElements.indexStart.disabled = false;
         aiElements.indexStart.textContent = 'Start Indexing';
@@ -504,7 +504,7 @@ aiElements.suggestCancel.addEventListener('click', () => {
 
 aiElements.suggestStart.addEventListener('click', async () => {
     const dir = aiElements.suggestDir.value.trim();
-    if (!dir) { alert('Please enter a directory path.'); return; }
+    if (!dir) { showToast('Please enter a directory path.', 'info'); return; }
 
     aiElements.suggestStart.disabled = true;
     aiElements.suggestStart.textContent = 'Analyzing...';
@@ -513,7 +513,7 @@ aiElements.suggestStart.addEventListener('click', async () => {
         const data = await apiRequest('/ai/suggestions', 'POST', { file_path: dir });
         renderSuggestions(data);
     } catch (error) {
-        alert('Suggestion Error: ' + error.message);
+        showToast('Suggestion Failed: ' + error.message, 'error');
     } finally {
         aiElements.suggestStart.disabled = false;
         aiElements.suggestStart.textContent = 'Get Suggestions';
@@ -522,7 +522,7 @@ aiElements.suggestStart.addEventListener('click', async () => {
 
 function renderSuggestions(data) {
     if (data.error) {
-        alert('Error: ' + data.error);
+        showToast(data.error, 'error');
         return;
     }
 
@@ -552,4 +552,55 @@ function renderSuggestions(data) {
     html += '</div>';
 
     aiElements.resultsGrid.innerHTML = html;
+}
+
+// ========================================
+// Navigation Logic
+// ========================================
+
+document.getElementById('navSettings')?.addEventListener('click', () => {
+    showToast('Global settings are managed via .env file.', 'info');
+});
+
+document.getElementById('navDashboard')?.addEventListener('click', () => {
+    window.location.reload();
+});
+
+// ========================================
+// Toast Notifications
+// ========================================
+
+// Inject container
+document.body.insertAdjacentHTML('beforeend', '<div id="toast-container" class="toast-container"></div>');
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    // Icon based on type
+    let icon = '';
+    if (type === 'success') icon = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    else if (type === 'error') icon = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+    else icon = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+
+    toast.innerHTML = `
+        ${icon}
+        <div class="toast-message">${message}</div>
+        <button class="toast-close" onclick="this.parentElement.classList.add('toast-hiding'); setTimeout(() => this.parentElement.remove(), 300);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto remove after 5s
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.classList.add('toast-hiding');
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 300);
+        }
+    }, 5000);
 }
