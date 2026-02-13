@@ -30,14 +30,25 @@ venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
-### 2. Start the Dashboard
+### 2. Configure Environment
+
+```bash
+# Copy the example config and fill in your values
+cp .env.example .env        # macOS/Linux
+# copy .env.example .env    # Windows
+
+# Edit .env and set at minimum:
+#   GEMINI_API_KEY=your_key_here
+```
+
+### 3. Start the Dashboard
 
 ```bash
 cd api
 uvicorn main:app --reload --port 8000
 ```
 
-### 3. Open the Dashboard
+### 4. Open the Dashboard
 
 Navigate to **http://localhost:8000** in your browser.
 

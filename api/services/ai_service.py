@@ -2,7 +2,6 @@
 AI Service - Gemini-powered media analysis, tagging, and semantic search.
 Uses ChromaDB for local vector storage and Google Gemini for vision + embeddings.
 """
-import os
 import json
 import logging
 import hashlib
@@ -10,6 +9,7 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
+from config import settings
 from services.job_manager import job_manager
 
 logger = logging.getLogger("AIService")
@@ -21,8 +21,6 @@ _chroma_client = None
 _collection = None
 
 IMAGE_EXTENSIONS = {'.heic', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.dng', '.arw', '.cr2', '.nef'}
-THUMBNAIL_MAX_SIZE = (512, 512)
-CHROMA_DB_PATH = str(Path(__file__).parent.parent / ".chromadb")
 
 
 def _get_genai():
@@ -31,15 +29,14 @@ def _get_genai():
     if _genai is None:
         import google.generativeai as genai
 
-        api_key = os.environ.get("GEMINI_API_KEY", "")
-        if not api_key:
+        if not settings.gemini_api_key:
             raise ValueError(
-                "GEMINI_API_KEY environment variable is not set. "
+                "GEMINI_API_KEY is not set in .env file. "
                 "Get one at https://aistudio.google.com/apikey"
             )
-        genai.configure(api_key=api_key)
+        genai.configure(api_key=settings.gemini_api_key)
         _genai = genai
-        _model = genai.GenerativeModel("gemini-2.0-flash")
+        _model = genai.GenerativeModel(settings.gemini_model)
     return _genai, _model
 
 
@@ -49,7 +46,7 @@ def _get_collection():
     if _collection is None:
         import chromadb
 
-        _chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
+        _chroma_client = chromadb.PersistentClient(path=settings.resolved_chroma_path)
         _collection = _chroma_client.get_or_create_collection(
             name="media_index",
             metadata={"hnsw:space": "cosine"}
@@ -62,9 +59,10 @@ def _generate_thumbnail(file_path: Path) -> Optional[bytes]:
     from PIL import Image
     import io
 
+    max_dim = settings.thumbnail_max_size
     try:
         img = Image.open(file_path)
-        img.thumbnail(THUMBNAIL_MAX_SIZE)
+        img.thumbnail((max_dim, max_dim))
         if img.mode in ("RGBA", "P"):
             img = img.convert("RGB")
         buffer = io.BytesIO()

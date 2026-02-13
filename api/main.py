@@ -3,18 +3,21 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from routers import media, android, files, analysis, jobs, ai
+from config import settings
 from pathlib import Path
 
 app = FastAPI(
     title="Mobile Media Organizer API",
     description="API to control file organization tasks with real-time progress tracking.",
-    version="2.0.0"
+    version=settings.app_version,
+    docs_url="/docs" if not settings.is_production else None,
+    redoc_url="/redoc" if not settings.is_production else None,
 )
 
-# CORS for development
+# CORS - configurable origins from .env
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origin_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,4 +49,8 @@ def root():
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "version": "2.0.0"}
+    return {
+        "status": "healthy",
+        "version": settings.app_version,
+        "environment": settings.app_env,
+    }
